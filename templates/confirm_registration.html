@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение регистрации</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body class="bg-base-200">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="card w-full max-w-md bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-2xl font-bold mb-4">Подтверждение регистрации</h2>
+                <form method="POST" action="{{ url_for('confirm_registration') }}">
+                    <div class="form-control mb-4">
+                        <label class="label" for="confirmation_code">
+                            <span class="label-text">Код подтверждения</span>
+                        </label>
+                        <input type="text" id="confirmation_code" name="confirmation_code" 
+                               placeholder="Введите код подтверждения" 
+                               class="input input-bordered w-full" 
+                               required>
+                    </div>
+                    <div class="form-control mb-4">
+                        <button type="submit" class="btn btn-primary w-full">
+                            Подтвердить
+                        </button>
+                    </div>
+                </form>
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('login') }}" class="link link-primary text-sm">Вернуться к входу</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

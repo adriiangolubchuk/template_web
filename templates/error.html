@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Ошибка{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="card w-96 bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-error">Ошибка</h2>
+            <p>{{ error_message }}</p>
+            <div class="card-actions justify-end">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">На главную</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

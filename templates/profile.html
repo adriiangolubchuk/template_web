@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+    <div class="min-h-screen flex items-center justify-center">
+        <div class="card w-full max-w-lg bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-2xl font-bold mb-4 text-center">Мой профиль</h2>
+                <div class="flex items-center justify-center mb-4">
+                    <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-24 h-24">
+                            <span class="text-3xl">{{ username[0] | upper if username else 'U' }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% if user_data %}
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold">Логин:</h3>
+                        <p class="text-md border-b border-gray-300 pb-2">{{ username }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold">Пароль:</h3>
+                        <p class="text-md border-b border-gray-300 pb-2">******</p>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold">Email:</h3>
+                        <p class="text-md border-b border-gray-300 pb-2">{{ user_data[1] }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold">Роль:</h3>
+                        <p class="text-md border-b border-gray-300 pb-2">{{ user_role }}</p>
+                    </div>
+                {% else %}
+                    <p>Данные пользователя не найдены.</p>
+                {% endif %}
+                <div class="mt-4">
+                    <a href="{{ url_for('home') }}" class="btn btn-primary w-full">Назад на главную</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

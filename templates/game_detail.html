@@ -1,0 +1,1125 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ game_data[0] if game_data else 'Игра' }}{% endblock %}
+
+{% block content %}
+    {% if is_guest %}
+    <!-- Интерактивный баннер для гостей -->
+    <div class="sticky top-0 z-40 w-full bg-gradient-to-r from-primary to-secondary text-primary-content shadow-lg animate-fadeIn">
+        <div class="container mx-auto py-3 px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="avatar placeholder animate-pulse">
+                        <div class="bg-primary-content text-primary rounded-full w-10 opacity-80">
+                            <span class="text-lg">G</span>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="font-medium text-lg">Добро пожаловать, Гость!</p>
+                        <p class="text-sm opacity-90">Войдите в систему, чтобы получить полный доступ</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline border-primary-content text-primary-content hover:bg-primary-content hover:text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                        </svg>
+                        Вход
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-sm bg-primary-content text-primary hover:bg-opacity-90">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                        </svg>
+                        Регистрация
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Добавляем плавающую кнопку переключения темы -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button id="floating-theme-toggle" class="btn btn-circle btn-lg shadow-lg bg-base-100 hover:bg-base-200 border-2 border-primary/20 group">
+            <div class="relative w-full h-full flex items-center justify-center overflow-hidden">
+                <!-- Солнце (для темной темы) -->
+                <div id="sun-icon" class="absolute transition-all duration-500 transform group-hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <!-- Луна (для светлой темы) -->
+                <div id="moon-icon" class="absolute transition-all duration-500 transform group-hover:scale-110 opacity-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </div>
+            </div>
+            <!-- Эффект свечения при наведении -->
+            <div class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-primary/20 to-secondary/20 blur-md -z-10"></div>
+        </button>
+    </div>
+
+    <div class="min-h-screen p-4">
+        <div class="w-full max-w-7xl p-4 mt-4 mx-auto">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2 text-primary">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                </svg>
+                Классы
+            </h2>
+            
+            <!-- Адаптивная сетка классов -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-8 justify-center mx-auto">
+                {% for class in classes %}
+                <div class="flex flex-col items-center">
+                    <!-- Улучшенное интерактивное изображение класса -->
+                    <div class="class-card relative group cursor-pointer overflow-hidden rounded-xl shadow-xl transition-all duration-500 hover:shadow-2xl w-full aspect-[3/4]">
+                        <!-- Основное изображение -->
+                        <img src="{{ url_for('static', filename='images/gogomuffin/class/' + class.image_path) }}" 
+                             alt="Детали {{ class.name }}" 
+                             class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110">
+                        
+                        <!-- Градиентный оверлей -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90"></div>
+                        
+                        <!-- Название класса -->
+                        <div class="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 transform transition-transform duration-500 group-hover:translate-y-0 translate-y-2">
+                            <h3 class="text-white text-sm sm:text-base md:text-lg font-bold mb-0 sm:mb-1 text-shadow">{{ class.name }}</h3>
+                            <p class="text-white/80 text-xs sm:text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 line-clamp-2">{{ class.description }}</p>
+                        </div>
+                        
+                        <!-- Декоративные элементы - скрываем на маленьких экранах -->
+                        <div class="absolute top-0 left-0 w-full h-full pointer-events-none hidden sm:block">
+                            <!-- Верхний левый угол -->
+                            <div class="absolute top-0 left-0 w-8 sm:w-10 md:w-12 h-8 sm:h-10 md:h-12 border-t-2 border-l-2 border-white/30 rounded-tl-lg transform -translate-x-2 -translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-500"></div>
+                            
+                            <!-- Нижний правый угол -->
+                            <div class="absolute bottom-0 right-0 w-8 sm:w-10 md:w-12 h-8 sm:h-10 md:h-12 border-b-2 border-r-2 border-white/30 rounded-br-lg transform translate-x-2 translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-500"></div>
+                            
+                            <!-- Светящийся эффект при наведении -->
+                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay"></div>
+                        </div>
+                        
+                        <!-- Анимированная иконка просмотра - уменьшаем на маленьких экранах -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-50 group-hover:scale-100">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Упрощенная разделительная черта -->
+            <div class="mt-16 mb-8">
+                <div class="w-full border-t-2 border-base-300"></div>
+            </div>
+            
+            <!-- Модальное окно с подробностями о техническом обслуживании -->
+            <dialog id="maintenance-details-modal" class="modal">
+                <div class="modal-box">
+                    <h3 class="font-bold text-lg">Техническое обслуживание</h3>
+                    <p class="py-4">
+                        {% if maintenance_info[3] %}
+                            {{ maintenance_info[3] }}
+                        {% else %}
+                            Игра находится на техническом обслуживании
+                            {% if maintenance_info[1] and maintenance_info[2] %}
+                                с {{ maintenance_info[1]|strftime('%H:%M %d.%m.%Y') }} до {{ maintenance_info[2]|strftime('%H:%M %d.%m.%Y') }}
+                            {% endif %}
+                        {% endif %}
+                    </p>
+                    <p class="text-sm text-base-content/70">
+                        Во время технического обслуживания некоторые функции игры могут быть недоступны. Приносим извинения за возможные неудобства.
+                    </p>
+                    <div class="modal-action">
+                        <form method="dialog">
+                            <button class="btn">Закрыть</button>
+                        </form>
+                    </div>
+                </div>
+            </dialog>
+            
+            <!-- Секция промокодов с заголовком слева -->
+            <div class="mb-16">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2 text-primary">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                        </svg>
+                        Промокоды
+                    </h2>
+                    {% if session.is_admin %}
+                    <button onclick="document.getElementById('add-promo-modal').showModal()" class="btn btn-primary btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        Добавить промокод
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for promo in promo_codes %}
+                        <div class="bg-base-100 rounded-lg shadow-md p-4 border border-base-300 hover:shadow-lg transition-all duration-300 
+                                  {% if not promo[2] %}opacity-60{% endif %}">
+                            <div class="flex justify-between items-center">
+                                <div class="font-mono font-bold text-lg flex items-center gap-2">
+                                    {{ promo[0] }}
+                                    {% if promo[2] %}
+                                        <span class="badge badge-sm badge-success">Активен</span>
+                                    {% else %}
+                                        <span class="badge badge-sm badge-error">Неактивен</span>
+                                    {% endif %}
+                                </div>
+                                <button onclick="copyToClipboard('{{ promo[0] }}', event)" class="btn btn-ghost btn-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                                    </svg>
+                                    Копировать
+                                </button>
+                            </div>
+                            {% if promo[1] %}
+                            <p class="mt-2 text-sm text-base-content/70">{{ promo[1] }}</p>
+                            {% endif %}
+                            
+                            {% if session.is_admin %}
+                            <div class="mt-3 flex justify-end">
+                                <button onclick="deletePromoFromGame('{{ promo[0] }}')" class="btn btn-ghost btn-xs text-error">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                    </svg>
+                                    Удалить
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                {% if promo_codes|length >= 10 %}
+                <div class="flex justify-center mt-6">
+                    <button id="show-more-promos" class="btn btn-outline btn-sm">
+                        Показать больше промокодов
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5M21 12H3"></path>
+                        </svg>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Упрощенная разделительная черта -->
+            <div class="mt-16 mb-8">
+                <div class="w-full border-t-2 border-base-300"></div>
+            </div>
+
+            <!-- Блок новостей и объявлений -->
+            <div class="mb-16">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2 text-primary">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+                        </svg>
+                        Новости и объявления
+                    </h2>
+                    {% if session.is_admin %}
+                    <button onclick="document.getElementById('add-news-modal').showModal()" class="btn btn-sm btn-primary rounded-full px-4 shadow-lg hover:shadow-primary/30 transition-all duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        Добавить новость
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% if news %}
+                        {% for news_item in news %}
+                            {% if news_item[2] and news_item[3] %}
+                            <div class="card bg-base-100 border border-base-300 hover:border-primary shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+                                <div class="card-body p-0">
+                                    <!-- Верхняя цветная полоса в зависимости от типа новости -->
+                                    <div class="h-2 w-full 
+                                        {% if news_item[1] == 'maintenance' %}bg-warning
+                                        {% elif news_item[1] == 'event' %}bg-primary
+                                        {% else %}bg-accent{% endif %}">
+                                    </div>
+                                    
+                                    <div class="p-6">
+                                        <!-- Заголовок и тип новости -->
+                                        <div class="flex justify-between items-start mb-4">
+                                            <h3 class="card-title text-lg font-bold group-hover:text-primary transition-colors duration-300">{{ news_item[2] }}</h3>
+                                            <div class="badge 
+                                                {% if news_item[1] == 'maintenance' %}badge-warning text-warning-content
+                                                {% elif news_item[1] == 'event' %}badge-primary text-primary-content
+                                                {% else %}badge-accent text-accent-content{% endif %} 
+                                                badge-sm">
+                                                {% if news_item[1] == 'maintenance' %}
+                                                    Техобслуживание
+                                                {% elif news_item[1] == 'event' %}
+                                                    Событие
+                                                {% else %}
+                                                    Анонс
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Иконка и содержание -->
+                                        <div class="flex items-start space-x-4">
+                                            <div class="flex-shrink-0 rounded-full p-2 
+                                                {% if news_item[1] == 'maintenance' %}bg-warning/10 text-warning
+                                                {% elif news_item[1] == 'event' %}bg-primary/10 text-primary
+                                                {% else %}bg-accent/10 text-accent{% endif %}">
+                                                {% if news_item[1] == 'maintenance' %}
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+                                                </svg>
+                                                {% elif news_item[1] == 'event' %}
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
+                                                </svg>
+                                                {% else %}
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
+                                                </svg>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <div class="flex-1">
+                                                <div class="text-sm opacity-90 mb-4 line-clamp-3">{{ news_item[3] }}</div>
+                                                
+                                                <!-- Даты (если есть) -->
+                                                <div class="flex flex-wrap gap-3 text-xs text-base-content/60">
+                                                    {% if news_item[4] %}
+                                                    <div class="inline-flex items-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-1">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                                                        </svg>
+                                                        {{ news_item[4]|strftime('%d.%m.%Y %H:%M') }}
+                                                    </div>
+                                                    {% endif %}
+                                                    
+                                                    {% if news_item[5] %}
+                                                    <div class="inline-flex items-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-1">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        {{ news_item[5]|strftime('%d.%m.%Y %H:%M') }}
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <!-- Кнопки действий -->
+                                                <div class="flex justify-end items-center gap-2 mt-4">
+                                                    <button class="btn btn-xs btn-ghost rounded-full hover:bg-base-200" 
+                                                            data-title="{{ news_item[2]|e }}" 
+                                                            data-content="{{ news_item[3]|e }}" 
+                                                            data-type="{{ news_item[1] }}" 
+                                                            data-start-date="{{ news_item[4]|strftime('%d.%m.%Y %H:%M') if news_item[4] else '' }}" 
+                                                            data-end-date="{{ news_item[5]|strftime('%d.%m.%Y %H:%M') if news_item[5] else '' }}"
+                                                            onclick="showNewsDetailsFromData(this)">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        </svg>
+                                                        Подробнее
+                                                    </button>
+                                                    
+                                                    {% if session.is_admin %}
+                                                    <a href="{{ url_for('admin_edit_news', news_id=news_item[0]) }}" class="btn btn-xs btn-ghost rounded-full hover:bg-base-200">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                                        </svg>
+                                                    </a>
+                                                    <a href="{{ url_for('admin_delete_news', news_id=news_item[0], game_id=game_id) }}" class="btn btn-xs btn-ghost rounded-full hover:bg-base-200 text-error" onclick="return confirm('Вы уверены, что хотите удалить эту новость?')">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                        </svg>
+                                                    </a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-span-full text-center py-12">
+                            <div class="flex flex-col items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-base-content/20 mb-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+                                </svg>
+                                <p class="text-base-content/50 mb-4">Новостей пока нет</p>
+                                {% if session.is_admin %}
+                                <button onclick="document.getElementById('add-news-modal').showModal()" class="btn btn-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                    Добавить первую новость
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для быстрого добавления промокода -->
+    {% if session.is_admin %}
+    <dialog id="add-promo-modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg mb-4">Добавить новый промокод</h3>
+            <form method="POST" action="{{ url_for('admin_add_promo_quick', game_id=game_id) }}" class="space-y-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Код промокода</span>
+                    </label>
+                    <input type="text" name="code" class="input input-bordered" required>
+                </div>
+                
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Описание</span>
+                    </label>
+                    <input type="text" name="description" class="input input-bordered">
+                </div>
+                
+                <div class="modal-action">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn" onclick="document.getElementById('add-promo-modal').close()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+    {% endif %}
+
+    <!-- Модальное окно для просмотра новости -->
+    <dialog id="news-details-modal" class="modal">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg news-modal-title"></h3>
+                <span class="badge news-modal-type">Тип</span>
+            </div>
+            <div class="text-sm opacity-70 news-modal-dates mb-4 hidden"></div>
+            <div class="prose max-w-none news-modal-content"></div>
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn">Закрыть</button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>закрыть</button>
+        </form>
+    </dialog>
+
+    <!-- Модальное окно для добавления новости (только для администраторов) -->
+    {% if session.is_admin %}
+    <dialog id="add-news-modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Добавить новость</h3>
+            <form action="{{ url_for('admin_add_news', game_id=game_id) }}" method="POST" class="mt-4">
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text">Тип новости</span>
+                    </label>
+                    <select id="news-type-select" name="news_type" class="select select-bordered w-full">
+                        <option value="event">Событие</option>
+                        <option value="announcement">Анонс</option>
+                        <option value="maintenance">Техническое обслуживание</option>
+                    </select>
+                </div>
+                
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text">Заголовок</span>
+                    </label>
+                    <input type="text" name="title" class="input input-bordered w-full" required>
+                </div>
+                
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text">Содержание</span>
+                    </label>
+                    <textarea name="content" class="textarea textarea-bordered h-24" required></textarea>
+                </div>
+                
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text">Дата начала</span>
+                    </label>
+                    <input type="datetime-local" name="start_date" class="input input-bordered w-full">
+                </div>
+                
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text">Дата окончания</span>
+                    </label>
+                    <input type="datetime-local" name="end_date" class="input input-bordered w-full">
+                </div>
+                
+                <div class="modal-action">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn" onclick="document.getElementById('add-news-modal').close()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+    {% endif %}
+
+    <!-- Модальное окно для редактирования технического обслуживания -->
+    {% if session.is_admin %}
+    <dialog id="edit-maintenance-modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Редактирование технического обслуживания</h3>
+            <form action="{{ url_for('admin_update_maintenance', game_id=game_id) }}" method="POST" class="mt-4">
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text">Сообщение</span>
+                    </label>
+                    <textarea name="message" class="textarea textarea-bordered h-24" required>{{ maintenance_info[3] if maintenance_info and maintenance_info[3] else 'Игра находится на техническом обслуживании' }}</textarea>
+                </div>
+                
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text">Дата начала</span>
+                    </label>
+                    <input type="datetime-local" name="start_time" class="input input-bordered w-full" 
+                           value="{{ maintenance_info[1]|strftime('%Y-%m-%dT%H:%M') if maintenance_info and maintenance_info[1] else '' }}">
+                </div>
+                
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text">Дата окончания</span>
+                    </label>
+                    <input type="datetime-local" name="end_time" class="input input-bordered w-full"
+                           value="{{ maintenance_info[2]|strftime('%Y-%m-%dT%H:%M') if maintenance_info and maintenance_info[2] else '' }}">
+                </div>
+                
+                <div class="modal-action">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn" onclick="document.getElementById('edit-maintenance-modal').close()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+    {% endif %}
+
+    <script>
+        // Глобальная переменная для отслеживания смещения
+        let promoOffset = 10;
+        
+        // Функция копирования промокода с улучшенным уведомлением
+        function copyToClipboard(text, event) {
+            // Предотвращаем стандартное поведение события
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            // Находим кнопку, которая была нажата
+            const button = event ? event.currentTarget : null;
+            
+            // Сохраняем оригинальное содержимое кнопки, если она существует
+            const originalContent = button ? button.innerHTML : '';
+            
+            // Создаем временный элемент для копирования
+            const tempElement = document.createElement('textarea');
+            tempElement.value = text;
+            tempElement.setAttribute('readonly', '');
+            tempElement.style.position = 'absolute';
+            tempElement.style.left = '-9999px';
+            document.body.appendChild(tempElement);
+            
+            // Выбираем текст и копируем его
+            tempElement.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempElement);
+            
+            // Если кнопка существует, меняем её внешний вид
+            if (button) {
+                button.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    Скопировано!
+                `;
+                button.classList.remove('btn-ghost');
+                button.classList.add('btn-success');
+            }
+            
+            // Показываем уведомление об успешном копировании (в нижней части экрана)
+            const notification = document.createElement('div');
+            notification.className = 'fixed z-50 bg-success text-success-content px-4 py-2 rounded-lg shadow-lg transition-all duration-300 flex items-center';
+            notification.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                Промокод <span class="font-mono font-bold">${text}</span> скопирован!
+            `;
+            
+            // Позиционируем уведомление в нижней части экрана
+            notification.style.bottom = '2rem';
+            notification.style.left = '50%';
+            notification.style.transform = 'translateX(-50%)';
+            notification.style.opacity = '0';
+            
+            document.body.appendChild(notification);
+            
+            // Анимируем появление
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 10);
+            
+            // Удаляем уведомление через 2 секунды
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(-50%) translateY(20px)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 2000);
+            
+            // Если кнопка существует, возвращаем оригинальный текст кнопки через 1.5 секунды
+            if (button) {
+                setTimeout(() => {
+                    button.innerHTML = originalContent;
+                    button.classList.add('btn-ghost');
+                    button.classList.remove('btn-success');
+                }, 1500);
+            }
+        }
+        
+        function deletePromoFromGame(code) {
+            if (confirm(`Вы уверены, что хотите удалить промокод ${code}?`)) {
+                window.location.href = `/admin/promo_codes/delete_by_code/${code}?redirect_to={{ request.path }}`;
+            }
+        }
+        
+        // Обработчик для кнопки "Показать больше"
+        document.getElementById('show-more-promos')?.addEventListener('click', function() {
+            // Показываем индикатор загрузки
+            this.innerHTML = `
+                <span class="loading loading-spinner loading-xs"></span>
+                Загрузка...
+            `;
+            this.disabled = true;
+            
+            // Отправляем AJAX-запрос для получения дополнительных промокодов
+            fetch(`/load_more_promos/{{ game_id }}/${promoOffset}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.promos && data.promos.length > 0) {
+                        // Находим контейнер для промокодов
+                        const promoContainer = document.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3.gap-4');
+                        
+                        // Добавляем новые промокоды в контейнер
+                        data.promos.forEach(promo => {
+                            // Проверяем, что код не пустой
+                            if (promo.code && promo.code.trim() !== '') {
+                                const promoCard = document.createElement('div');
+                                promoCard.className = `bg-base-100 rounded-lg shadow-md p-4 border border-base-300 hover:shadow-lg transition-all duration-300 ${!promo.is_active ? 'opacity-60' : ''}`;
+                                
+                                promoCard.innerHTML = `
+                                    <div class="flex justify-between items-center">
+                                        <div class="font-mono font-bold text-lg flex items-center gap-2">
+                                            ${promo.code}
+                                            ${promo.is_active 
+                                                ? '<span class="badge badge-sm badge-success">Активен</span>' 
+                                                : '<span class="badge badge-sm badge-error">Неактивен</span>'}
+                                        </div>
+                                        <button onclick="copyToClipboard('${promo.code}', event)" class="btn btn-ghost btn-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                                            </svg>
+                                            Копировать
+                                        </button>
+                                    </div>
+                                    ${promo.description ? `<p class="mt-2 text-sm text-base-content/70">${promo.description}</p>` : ''}
+                                    
+                                    {% if session.is_admin %}
+                                    <div class="mt-3 flex justify-end">
+                                        <button onclick="deletePromoFromGame('${promo.code}')" class="btn btn-ghost btn-xs text-error">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                            </svg>
+                                            Удалить
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                `;
+                                
+                                promoContainer.appendChild(promoCard);
+                            }
+                        });
+                        
+                        // Обновляем смещение для следующей загрузки
+                        promoOffset += data.promos.length;
+                        
+                        // Восстанавливаем кнопку, если есть еще промокоды
+                        this.innerHTML = `
+                            Показать больше промокодов
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5M21 12H3"></path>
+                            </svg>
+                        `;
+                        this.disabled = false;
+                        
+                        // Скрываем кнопку, если больше нет промокодов
+                        if (!data.has_more) {
+                            this.style.display = 'none';
+                        }
+                    } else {
+                        // Если промокодов больше нет, скрываем кнопку
+                        this.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке промокодов:', error);
+                    // Восстанавливаем кнопку в случае ошибки
+                    this.innerHTML = `
+                        Показать больше промокодов
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5M21 12H3"></path>
+                        </svg>
+                    `;
+                    this.disabled = false;
+                });
+        });
+    </script>
+
+    <style>
+        /* Добавляем тень для текста */
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Анимация пульсации для карточек классов */
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        
+        .class-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        
+        .class-card:hover {
+            animation: pulse-border 2s infinite;
+        }
+        
+        /* Эффект параллакса при движении мыши */
+        .class-card:hover img {
+            transform: scale(1.1) translateZ(0);
+        }
+        
+        /* Анимация пульсации для стрелок */
+        @keyframes pulse {
+            0% { opacity: 0.7; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(3px); }
+            100% { opacity: 0.7; transform: translateY(0); }
+        }
+        
+        .arrow-down {
+            animation: pulse 2s infinite ease-in-out;
+        }
+        
+        /* Стили для красивой рамки */
+        .fancy-frame {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .fancy-frame:hover {
+            transform: translateY(-5px);
+        }
+        
+        .fancy-frame::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            z-index: -1;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+            border-radius: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .fancy-frame:hover::before {
+            opacity: 1;
+        }
+
+        .promo-code {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promo-code::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+        
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fade-out {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        
+        .animate-fade-in-up {
+            animation: fade-in-up 0.3s ease-out forwards;
+        }
+        
+        .animate-fade-out {
+            animation: fade-out 0.3s ease-in forwards;
+        }
+        
+        .select-all {
+            user-select: all;
+        }
+        
+        .promo-card {
+            transition: all 0.2s ease;
+        }
+        
+        .promo-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Стили для карточек новостей */
+        .news-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .news-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .news-card:hover::after {
+            opacity: 1;
+        }
+        
+        /* Ограничение количества строк текста */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+
+    <script>
+        // Добавляем эффект параллакса при движении мыши
+        document.querySelectorAll('.class-card').forEach(card => {
+            card.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const xPercent = x / rect.width - 0.5;
+                const yPercent = y / rect.height - 0.5;
+                
+                this.style.transform = `rotateY(${xPercent * 10}deg) rotateX(${yPercent * -10}deg) scale3d(1.05, 1.05, 1.05)`;
+                
+                const image = this.querySelector('img');
+                image.style.transform = `translateX(${xPercent * -20}px) translateY(${yPercent * -20}px) scale(1.1)`;
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'rotateY(0) rotateX(0) scale3d(1, 1, 1)';
+                const image = this.querySelector('img');
+                image.style.transform = '';
+            });
+        });
+    </script>
+
+    <script>
+        // Функция для отображения подробностей новости
+        function showNewsDetails(title, content, type, startDate, endDate) {
+            const modal = document.getElementById('news-details-modal');
+            
+            // Проверяем, что модальное окно существует
+            if (!modal) {
+                console.error('Модальное окно не найдено');
+                return;
+            }
+            
+            // Находим элементы внутри модального окна
+            const titleEl = modal.querySelector('.news-modal-title');
+            const contentEl = modal.querySelector('.news-modal-content');
+            const typeEl = modal.querySelector('.badge'); // Изменяем селектор
+            const datesEl = modal.querySelector('.news-modal-dates');
+            
+            // Устанавливаем заголовок, если элемент найден
+            if (titleEl) {
+                titleEl.textContent = decodeHTMLEntities(title);
+            } else {
+                console.warn('Элемент .news-modal-title не найден');
+            }
+            
+            // Устанавливаем содержимое, если элемент найден
+            if (contentEl) {
+                contentEl.innerHTML = decodeHTMLEntities(content);
+            } else {
+                console.warn('Элемент .news-modal-content не найден');
+            }
+            
+            // Устанавливаем тип новости, если элемент найден
+            if (typeEl) {
+                // Сначала удаляем все классы badge-*
+                typeEl.className = 'badge';
+                
+                if (type === 'maintenance') {
+                    typeEl.textContent = 'Техобслуживание';
+                    typeEl.classList.add('badge-warning');
+                } else if (type === 'event') {
+                    typeEl.textContent = 'Событие';
+                    typeEl.classList.add('badge-primary');
+                } else {
+                    typeEl.textContent = 'Анонс';
+                    typeEl.classList.add('badge-accent');
+                }
+            } else {
+                console.warn('Элемент .badge не найден');
+            }
+            
+            // Устанавливаем даты, если элемент найден
+            if (datesEl) {
+                let dateText = '';
+                if (startDate && endDate) {
+                    dateText = `${startDate} - ${endDate}`;
+                } else if (startDate) {
+                    dateText = `Начало: ${startDate}`;
+                } else if (endDate) {
+                    dateText = `До: ${endDate}`;
+                }
+                
+                if (dateText) {
+                    datesEl.textContent = dateText;
+                    datesEl.classList.remove('hidden');
+                } else {
+                    datesEl.classList.add('hidden');
+                }
+            } else {
+                console.warn('Элемент .news-modal-dates не найден');
+            }
+            
+            modal.showModal();
+        }
+        
+        // Вспомогательная функция для декодирования HTML-сущностей
+        function decodeHTMLEntities(text) {
+            const textArea = document.createElement('textarea');
+            textArea.innerHTML = text;
+            return textArea.value;
+        }
+        
+        // Функция для переключения отображения полного текста новости
+        function toggleNewsContent(button) {
+            const newsBlock = button.closest('.news-content');
+            const fullContent = newsBlock.querySelector('.full-content');
+            
+            if (fullContent.classList.contains('hidden')) {
+                // Показываем полный текст
+                const truncatedText = newsBlock.childNodes[0].nodeValue.trim();
+                newsBlock.childNodes[0].nodeValue = '';
+                newsBlock.insertBefore(document.createTextNode(fullContent.textContent), fullContent);
+                button.textContent = 'Свернуть';
+                fullContent.classList.add('hidden');
+            } else {
+                // Показываем сокращенный текст
+                const fullText = newsBlock.childNodes[0].nodeValue.trim();
+                newsBlock.childNodes[0].nodeValue = fullText.substring(0, 150) + '... ';
+                button.textContent = 'Читать полностью';
+                fullContent.classList.remove('hidden');
+            }
+        }
+        
+        // Предзаполнение полей формы в зависимости от типа новости
+        document.getElementById('news-type-select')?.addEventListener('change', function() {
+            const titleInput = document.querySelector('input[name="title"]');
+            const contentTextarea = document.querySelector('textarea[name="content"]');
+            
+            if (this.value === 'maintenance') {
+                if (!titleInput.value) {
+                    titleInput.value = 'Техническое обслуживание';
+                }
+                if (!contentTextarea.value) {
+                    contentTextarea.value = 'Уважаемые игроки! В указанное время будет проводиться плановое техническое обслуживание серверов. В это время игра будет недоступна. Приносим извинения за возможные неудобства.';
+                }
+            }
+        });
+    </script>
+
+    <script>
+        function showNewsDetailsFromData(button) {
+            const title = button.getAttribute('data-title');
+            const content = button.getAttribute('data-content');
+            const type = button.getAttribute('data-type');
+            const startDate = button.getAttribute('data-start-date');
+            const endDate = button.getAttribute('data-end-date');
+            
+            showNewsDetails(title, content, type, startDate, endDate);
+        }
+    </script>
+
+    <!-- Добавим стили для анимации -->
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        /* Добавим эффект пульсации для аватара гостя */
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+        }
+        
+        .avatar.animate-pulse .rounded-full {
+            animation: glow 2s infinite;
+        }
+    </style>
+
+    <!-- Добавляем JavaScript для работы с плавающей кнопкой -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const floatingThemeToggle = document.getElementById('floating-theme-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            
+            // Устанавливаем начальное состояние иконок в зависимости от текущей темы
+            updateFloatingThemeButton();
+            
+            // Добавляем обработчик события для кнопки
+            floatingThemeToggle.addEventListener('click', function() {
+                // Вызываем функцию переключения темы из base.html
+                toggleTheme();
+                
+                // Обновляем состояние кнопки
+                updateFloatingThemeButton();
+                
+                // Добавляем эффект пульсации при нажатии
+                this.classList.add('animate-pulse');
+                setTimeout(() => {
+                    this.classList.remove('animate-pulse');
+                }, 500);
+            });
+            
+            function updateFloatingThemeButton() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                
+                if (isDark) {
+                    // Показываем солнце (для темной темы)
+                    sunIcon.classList.remove('opacity-0', 'scale-75');
+                    moonIcon.classList.add('opacity-0', 'scale-75');
+                } else {
+                    // Показываем луну (для светлой темы)
+                    sunIcon.classList.add('opacity-0', 'scale-75');
+                    moonIcon.classList.remove('opacity-0', 'scale-75');
+                }
+            }
+        });
+    </script>
+
+    <style>
+        /* Добавляем стили для анимации кнопки */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        #floating-theme-toggle {
+            animation: float 3s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+        
+        #floating-theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(var(--p), 0.5);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .animate-pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+    </style>
+
+    <!-- Добавляем скрипт для статической версии -->
+    <script src="{{ url_for('static', filename='assets/static-mode.js') }}"></script>
+{% endblock %} 

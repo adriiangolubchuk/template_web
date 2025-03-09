@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в систему</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .theme-switcher {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+        .alert {
+            opacity: 0;
+            transform: translateY(-10px);
+            animation: slideDown 0.3s ease forwards;
+        }
+        
+        @keyframes slideDown {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-base-200">
+    <!-- Переключатель темы -->
+    <div class="theme-switcher">
+        <button onclick="toggleTheme()" class="btn btn-circle btn-ghost">
+            <i id="theme-icon" class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="card w-full max-w-md bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-2xl font-bold mb-4">Вход в систему</h2>
+
+                <!-- Уведомление об ошибке -->
+                {% if error_message %}
+                    <div class="alert alert-error shadow-lg mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>{{ error_message }}</span>
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="form-control mb-4">
+                        <label class="label" for="username">
+                            <span class="label-text">Логин</span>
+                        </label>
+                        <input type="text" id="username" name="username" 
+                               placeholder="Введите ваш логин" 
+                               class="input input-bordered w-full" 
+                               required>
+                    </div>
+                    <div class="form-control mb-6">
+                        <label class="label" for="password">
+                            <span class="label-text">Пароль</span>
+                        </label>
+                        <input type="password" id="password" name="password" 
+                               placeholder="Введите ваш пароль" 
+                               class="input input-bordered w-full" 
+                               required>
+                    </div>
+                    <div class="form-control mb-4">
+                        <button type="submit" class="btn btn-primary w-full">
+                            Войти
+                        </button>
+                    </div>
+                    <div class="text-center">
+                        <a href="{{ url_for('reset_password') }}" class="link link-primary text-sm">Забыли пароль?</a>
+                    </div>
+                </form>
+                <div class="text-center mt-4">
+                    <span class="text-sm">Нет аккаунта? </span>
+                    <a href="{{ url_for('register') }}" class="link link-primary text-sm">Зарегистрируйтесь</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');  // Сохраняем тему
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');  // Сохраняем тему
+            }
+        }
+
+        // Проверяем сохраненную тему при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme) {
+                // Применяем сохраненную тему
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                if (savedTheme === 'dark') {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                // Если тема не сохранена, проверяем системные настройки
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+
+            // Скрываем уведомление при загрузке страницы
+            const alertBox = document.getElementById('alert');
+            if (alertBox) {
+                alertBox.style.display = 'none'; // Скрываем уведомление при загрузке страницы
+            }
+        });
+    </script>
+</body>
+</html>

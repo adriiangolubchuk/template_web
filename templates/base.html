@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Guide Game{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body class="bg-base-200">
+    <div class="drawer lg:drawer-open">
+        <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" />
+        
+        <div class="drawer-content flex flex-col">
+            <div class="sticky top-0 z-30 flex h-16 w-full justify-between items-center bg-base-100 px-4 lg:hidden">
+                <label for="sidebar-drawer" class="btn btn-square btn-ghost">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </label>
+                <h1 class="text-xl font-bold">Игровой портал</h1>
+                <div class="flex-none">
+                    {% if session.user_id %}
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 rounded-full bg-neutral text-neutral-content flex items-center justify-center">
+                                <span class="text-lg">{{ session.username[0] | upper }}</span>
+                            </div>
+                        </label>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                            <li><a href="/profile">Профиль</a></li>
+                            <li><a href="/logout">Выход</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="flex gap-2">
+                        <a href="{{ url_for('login') }}" class="btn btn-sm btn-ghost">Вход</a>
+                        <a href="{{ url_for('register') }}" class="btn btn-sm btn-primary">Регистрация</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="p-4">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+        
+        <div class="drawer-side z-40">
+            <label for="sidebar-drawer" class="drawer-overlay"></label>
+            <aside class="menu bg-base-300 w-64 min-h-screen text-base-content p-4">
+                <div class="mb-4 p-3 bg-base-200 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        {% if session.user_id %}
+                        <div class="avatar placeholder">
+                            <div class="bg-neutral text-neutral-content rounded-full w-10">
+                                <span class="text-lg">{{ session.username[0] | upper }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="font-medium">{{ session.username }}</p>
+                            <p class="text-sm opacity-70">
+                                {% if session.is_admin %}Администратор{% else %}Пользователь{% endif %}
+                            </p>
+                        </div>
+                        {% else %}
+                        <div class="avatar placeholder">
+                            <div class="bg-neutral text-neutral-content rounded-full w-10">
+                                <span class="text-lg">G</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="font-medium">Гость</p>
+                            <p class="text-sm opacity-70">
+                                <a href="{{ url_for('login') }}" class="link link-hover">Войти</a>
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="menu-title">Меню</div>
+                <ul class="menu menu-lg">
+                    <li>
+                        <a href="/home" class="{{ 'active' if request.path == '/home' else '' }}">
+                            <i class="fas fa-home"></i>
+                            Главная
+                        </a>
+                    </li>
+                    {% if session.user_id %}
+                    <li>
+                        <a href="/profile" class="{{ 'active' if request.path == '/profile' else '' }}">
+                            <i class="fas fa-user"></i>
+                            Профиль
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if session.is_admin %}
+                    <li class="menu-title mt-4">Администрирование</li>
+                    <li>
+                        <a href="/admin/users" class="{{ 'active' if request.path == '/admin/users' else '' }}">
+                            <i class="fas fa-users"></i>
+                            Пользователи
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/promo_codes" class="{{ 'active' if request.path == '/admin/promo_codes' else '' }}">
+                            <i class="fas fa-tags"></i>
+                            Промокоды
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if session.user_id %}
+                    <li class="mt-auto">
+                        <a href="/logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Выход
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="mt-auto">
+                        <a href="/login">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Вход
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/register">
+                            <i class="fas fa-user-plus"></i>
+                            Регистрация
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+
+            if (savedTheme) {
+                html.setAttribute('data-theme', savedTheme);
+            }
+        });
+        
+        // Добавляем функцию переключения темы
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            
+            // Переключаем тему
+            const newTheme = isDark ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+    </script>
+</body>
+</html> 

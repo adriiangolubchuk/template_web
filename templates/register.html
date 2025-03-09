@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body class="bg-base-200">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="card w-full max-w-md bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-2xl font-bold mb-4">Регистрация</h2>
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="form-control mb-4">
+                        <label class="label" for="username">
+                            <span class="label-text">Логин</span>
+                        </label>
+                        <input type="text" id="username" name="username" 
+                               placeholder="Введите ваш логин" 
+                               class="input input-bordered w-full" 
+                               required>
+                    </div>
+                    <div class="form-control mb-4">
+                        <label class="label" for="password">
+                            <span class="label-text">Пароль</span>
+                        </label>
+                        <input type="password" id="password" name="password" 
+                               placeholder="Введите ваш пароль" 
+                               class="input input-bordered w-full" 
+                               required>
+                    </div>
+                    <div class="form-control mb-4">
+                        <label class="label" for="email">
+                            <span class="label-text">Email</span>
+                        </label>
+                        <input type="email" id="email" name="email" 
+                               placeholder="Введите ваш email" 
+                               class="input input-bordered w-full" 
+                               required>
+                    </div>
+                    <div class="form-control mb-4">
+                        <button type="submit" class="btn btn-primary w-full">
+                            Зарегистрироваться
+                        </button>
+                    </div>
+                </form>
+                <div class="text-center mt-4">
+                    <span class="text-sm">Уже есть аккаунт? </span>
+                    <a href="{{ url_for('login') }}" class="link link-primary text-sm">Войдите</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,7 @@
+Flask==3.0.2
+psycopg2-binary==2.9.9
+Werkzeug==3.0.1
+sendgrid==6.11.0
+yagmail==0.15.293
+requests==2.31.0
+gunicorn==21.2.0 
